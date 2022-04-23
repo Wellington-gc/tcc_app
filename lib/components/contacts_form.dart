@@ -62,6 +62,14 @@ class _ContactsFormState extends State<ContactsForm> {
                   final relationship = relationshipController.text;
 
                   if (name.isEmpty || email.isEmpty || phone.isEmpty) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Campos vazios!',
+                        ),
+                        behavior: SnackBarBehavior.floating,
+                      ),
+                    );
                     return;
                   }
 

@@ -30,6 +30,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
     Navigator.of(context).pop();
   }
 
+  _deleteContact(String id) {
+    setState(() {
+      _contacts.removeWhere((element) => element.id == id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +44,16 @@ class _ContactsScreenState extends State<ContactsScreen> {
       ),
       body: Column(
         children: [
-          ContactsList(contacts: _contacts),
+          Card(
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: ContactsList(
+              contacts: _contacts,
+              onRemove: _deleteContact,
+            ),
+          ),
         ],
       ),
       floatingActionButton: FloatingActionButton.large(
