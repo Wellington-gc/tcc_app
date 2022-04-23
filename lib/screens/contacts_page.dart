@@ -26,6 +26,8 @@ class _ContactsScreenState extends State<ContactsScreen> {
     setState(() {
       _contacts.add(newContact);
     });
+
+    Navigator.of(context).pop();
   }
 
   @override
@@ -44,6 +46,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
         onPressed: () {
           showModalBottomSheet(
             context: context,
+            isScrollControlled: true,
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.vertical(
+                top: Radius.circular(5),
+              ),
+            ),
             builder: (_) {
               return ContactsForm(onSubmit: _addContact);
             },

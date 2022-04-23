@@ -20,55 +20,62 @@ class _ContactsFormState extends State<ContactsForm> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      elevation: 5,
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(
-                labelText: 'Nome',
-              ),
-            ),
-            TextField(
-              controller: emailController,
-              decoration: const InputDecoration(
-                labelText: 'E-mail',
-              ),
-            ),
-            TextField(
-              controller: phoneController,
-              decoration: const InputDecoration(
-                labelText: 'Telefone',
-              ),
-            ),
-            TextField(
-              controller: relationshipController,
-              decoration: const InputDecoration(
-                labelText: 'Parentesco',
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final name = nameController.text;
-                final email = emailController.text;
-                final phone = phoneController.text;
-                final relationship = relationshipController.text;
-
-                widget.onSubmit(name, email, phone, relationship);
-              },
-              child: const Text(
-                'Salvar',
-                style: TextStyle(
-                  fontSize: 24,
+    return Padding(
+      padding: MediaQuery.of(context).viewInsets,
+      child: Card(
+        elevation: 5,
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nome',
                 ),
               ),
-            ),
-          ],
+              TextField(
+                controller: emailController,
+                decoration: const InputDecoration(
+                  labelText: 'E-mail',
+                ),
+              ),
+              TextField(
+                controller: phoneController,
+                decoration: const InputDecoration(
+                  labelText: 'Telefone',
+                ),
+              ),
+              TextField(
+                controller: relationshipController,
+                decoration: const InputDecoration(
+                  labelText: 'Parentesco',
+                ),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  final name = nameController.text;
+                  final email = emailController.text;
+                  final phone = phoneController.text;
+                  final relationship = relationshipController.text;
+
+                  if (name.isEmpty || email.isEmpty || phone.isEmpty) {
+                    return;
+                  }
+
+                  widget.onSubmit(name, email, phone, relationship);
+                },
+                child: const Text(
+                  'Salvar',
+                  style: TextStyle(
+                    fontSize: 24,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
