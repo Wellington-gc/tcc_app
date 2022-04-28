@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tcc_app/screens/home_page.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   runApp(const MyApp());
 }
 

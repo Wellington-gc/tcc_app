@@ -17,7 +17,7 @@ class SettingsButton extends StatelessWidget {
           Navigator.of(context).push(
             MaterialPageRoute(
               builder: (_) {
-                return const SettingsScreen();
+                return SettingsScreen();
               },
             ),
           );
