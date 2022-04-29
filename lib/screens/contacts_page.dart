@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tcc_app/components/contacts_form.dart';
-import 'package:tcc_app/components/contacts_list.dart';
 import 'package:tcc_app/models/contact.dart';
 import 'package:uuid/uuid.dart';
 
@@ -12,9 +12,8 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> {
-  final _contacts = <Contact>[];
-
-  _addContact(String name, String email, String phone, String relationship) {
+  _addContact(
+      String name, String email, String phone, String relationship) async {
     final newContact = Contact(
       id: const Uuid().v4(),
       name: name,
@@ -23,17 +22,11 @@ class _ContactsScreenState extends State<ContactsScreen> {
       relationship: relationship,
     );
 
-    setState(() {
-      _contacts.add(newContact);
-    });
+    Box<Contact> contactsBox = Hive.box<Contact>('contacts');
+
+    contactsBox.add(newContact);
 
     Navigator.of(context).pop();
-  }
-
-  _deleteContact(String id) {
-    setState(() {
-      _contacts.removeWhere((element) => element.id == id);
-    });
   }
 
   @override
@@ -49,9 +42,72 @@ class _ContactsScreenState extends State<ContactsScreen> {
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(5),
             ),
-            child: ContactsList(
-              contacts: _contacts,
-              onRemove: _deleteContact,
+            child: ValueListenableBuilder(
+              valueListenable: Hive.box<Contact>('contacts').listenable(),
+              builder: (context, Box<Contact> box, _) {
+                if (box.values.isEmpty) {
+                  return const SizedBox(
+                    height: 550,
+                    child: Center(
+                      child: Text(
+                        'Nenhum contato cadastrado',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 40,
+                        ),
+                      ),
+                    ),
+                  );
+                }
+                return SizedBox(
+                  height: 550,
+                  child: ListView.builder(
+                    itemCount: box.values.length,
+                    itemBuilder: (context, index) {
+                      Contact? currentContact = box.getAt(index);
+
+                      return Card(
+                        clipBehavior: Clip.antiAlias,
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            radius: 30,
+                            child: Text(
+                              currentContact!.name
+                                  .substring(0, 1)
+                                  .toUpperCase(),
+                              style: const TextStyle(fontSize: 20),
+                            ),
+                          ),
+                          title: Text(
+                            currentContact.name,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          subtitle: Text(
+                            currentContact.relationship,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          trailing: IconButton(
+                            icon: const Icon(
+                              Icons.delete,
+                              size: 35,
+                            ),
+                            color: Theme.of(context).errorColor,
+                            onPressed: () async {
+                              await box.deleteAt(index);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
             ),
           ),
         ],
