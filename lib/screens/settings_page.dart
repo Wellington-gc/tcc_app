@@ -1,6 +1,12 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:hive/hive.dart';
+import 'package:tcc_app/models/fall_code.dart';
+import 'package:tcc_app/screens/alarm_page.dart';
+import 'package:timezone/timezone.dart';
 
 class SettingsScreen extends StatefulWidget {
   SettingsScreen({Key? key}) : super(key: key);
@@ -14,11 +20,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  Box<FallCode> fallCodesBox = Hive.box<FallCode>('fall_codes');
   List<BluetoothService> _services = <BluetoothService>[];
   BluetoothService? _fallService;
   BluetoothCharacteristic? _fallCharacteristic;
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
+  FlutterLocalNotificationsPlugin? flutterLocalNotificationsPlugin;
 
   _addDeviceTolist(final BluetoothDevice device) {
     if (!widget.devicesList.contains(device)) {
@@ -31,13 +37,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    const initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-    const initSetttings =
-        InitializationSettings(android: initializationSettingsAndroid);
+    const initializationSettings = InitializationSettings(
+      android: AndroidInitializationSettings('@mipmap/ic_launcher'),
+    );
 
-    flutterLocalNotificationsPlugin.initialize(initSetttings,
-        onSelectNotification: selectNotification);
+    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+
+    flutterLocalNotificationsPlugin?.initialize(initializationSettings,
+        onSelectNotification: onSelectNotification);
+
     widget.flutterBlue.connectedDevices
         .asStream()
         .listen((List<BluetoothDevice> devices) {
@@ -53,30 +61,72 @@ class _SettingsScreenState extends State<SettingsScreen> {
     widget.flutterBlue.startScan();
   }
 
-  Future selectNotification(String? payload) async {
+  Future onSelectNotification(String? payload) async {
     //Handle notification tapped logic here
-    Navigator.push(
-        context, MaterialPageRoute(builder: (context) => SettingsScreen()));
+    print(payload);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) {
+          return const AlarmScreen();
+        },
+      ),
+    );
   }
 
   showNotification() async {
-    await flutterLocalNotificationsPlugin.show(
-      1,
+    await flutterLocalNotificationsPlugin!.zonedSchedule(
+      Random().nextInt(999),
       'Queda detectada!',
       '',
+      TZDateTime.now(getLocation('America/Sao_Paulo'))
+          .add(const Duration(seconds: 1)),
       const NotificationDetails(
         android: AndroidNotificationDetails(
-          'your channel id',
-          'your channel name',
-          channelDescription: 'your channel description',
-          importance: Importance.max,
-          priority: Priority.max,
-          fullScreenIntent: true,
+          '1', 'channelName',
+          importance: Importance.defaultImportance,
+          priority: Priority.defaultPriority,
+          enableVibration: true,
+          // vibrationPattern: vibrationPattern,
+          setAsGroupSummary: false,
+          groupAlertBehavior: GroupAlertBehavior.all,
+          autoCancel: true,
+          ongoing: false,
+          // onlyAlertOnce: true,
           showWhen: true,
+          channelShowBadge: true,
+          showProgress: false,
+          maxProgress: 0,
+          progress: 0,
+          indeterminate: true,
+          channelAction: AndroidNotificationChannelAction.createIfNotExists,
+          enableLights: true,
+          fullScreenIntent: true,
         ),
       ),
-      payload: '',
+      uiLocalNotificationDateInterpretation:
+          UILocalNotificationDateInterpretation.absoluteTime,
+      androidAllowWhileIdle: true,
     );
+
+    // await flutterLocalNotificationsPlugin!.show(
+    //   Random().nextInt(999),
+    //   'Queda detectada!',
+    //   '',
+    //   const NotificationDetails(
+    //     android: AndroidNotificationDetails(
+    //       'your channel id',
+    //       'your channel name',
+    //       channelDescription: 'your channel description',
+    //       importance: Importance.max,
+    //       priority: Priority.max,
+    //       fullScreenIntent: true,
+    //       showWhen: true,
+    //       timeoutAfter: 10,
+    //       visibility: NotificationVisibility.public,
+    //     ),
+    //   ),
+    //   payload: '',
+    // );
   }
 
   @override
@@ -113,12 +163,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         .singleWhere(
                             (element) => element.properties.notify == true);
 
-                    _fallCharacteristic?.value.listen((value) {
-                      setState(() {
-                        widget.fallCode.add(value.last);
-                      });
-                      print(widget.fallCode.toString());
-                    });
+                    _fallCharacteristic?.value.listen(
+                      (value) {
+                        fallCodesBox
+                            .add(
+                              FallCode(
+                                code: value.last,
+                              ),
+                            )
+                            .then(
+                              (value) => showNotification(),
+                            );
+                        print(fallCodesBox.values.last.code);
+                      },
+                    );
 
                     await _fallCharacteristic?.setNotifyValue(true);
                   }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tcc_app/screens/alarm_page.dart';
 
 class SosButton extends StatelessWidget {
   const SosButton({Key? key}) : super(key: key);
@@ -10,12 +11,15 @@ class SosButton extends StatelessWidget {
         'SOS',
         style: TextStyle(fontSize: 100),
       ),
-      // Icon(
-      //   Icons.notifications_active,
-      //   size: 150,
-      //   color: Colors.white,
-      // ),
-      onPressed: () {},
+      onPressed: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) {
+              return const AlarmScreen();
+            },
+          ),
+        );
+      },
       style: ElevatedButton.styleFrom(
         fixedSize: const Size(300, 300),
         shape: const CircleBorder(),

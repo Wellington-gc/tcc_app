@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tcc_app/models/contact.dart';
+import 'package:tcc_app/models/fall_code.dart';
 import 'package:tcc_app/screens/home_page.dart';
+import 'package:timezone/data/latest.dart' as tz;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
+  tz.initializeTimeZones();
+
   await Hive.initFlutter();
   Hive.registerAdapter<Contact>(ContactAdapter());
+  Hive.registerAdapter<FallCode>(FallCodeAdapter());
   await Hive.openBox<Contact>('contacts');
+  await Hive.openBox<FallCode>('fall_codes');
 
   runApp(const MyApp());
 }

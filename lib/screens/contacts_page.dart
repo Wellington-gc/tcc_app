@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tcc_app/components/contacts_form.dart';
 import 'package:tcc_app/models/contact.dart';
+import 'package:telephony/telephony.dart';
 import 'package:uuid/uuid.dart';
 
 class ContactsScreen extends StatefulWidget {
@@ -12,6 +13,7 @@ class ContactsScreen extends StatefulWidget {
 }
 
 class _ContactsScreenState extends State<ContactsScreen> {
+  final Telephony telephony = Telephony.instance;
   _addContact(
       String name, String email, String phone, String relationship) async {
     final newContact = Contact(
@@ -27,6 +29,12 @@ class _ContactsScreenState extends State<ContactsScreen> {
     contactsBox.add(newContact);
 
     Navigator.of(context).pop();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    telephony.requestPhoneAndSmsPermissions;
   }
 
   @override
