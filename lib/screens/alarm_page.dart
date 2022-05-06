@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
 import 'package:flutter_countdown_timer/current_remaining_time.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
+import 'package:hive/hive.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
+import 'package:tcc_app/models/contact.dart';
 import 'package:telephony/telephony.dart';
 
 String username = 'wellingtonalves0103@gmail.com';
@@ -29,20 +30,25 @@ class _AlarmScreenState extends State<AlarmScreen> {
   }
 
   Future<void> onEnd() async {
-    final smtpServer = gmail(username, password);
-    final message = Message()
-      ..from = Address(username, 'Wellington Alves')
-      ..recipients.add(const Address('arthurdourado01@hotmail.com'))
-      ..subject = 'Fall Detected - I am dying!!! :: 😀 :: ${DateTime.now()}'
-      ..html =
-          '<h1>Fall Detected!!!!</h1>\n<p>Hey! I am dying here, come save me!</p>';
+    Box<Contact> contactsBox = Hive.box<Contact>('contacts');
 
-    await send(message, smtpServer);
+    for (var contact in contactsBox.values) {
+      final smtpServer = gmail(username, password);
+      final message = Message()
+        ..from = Address(username, 'Wellington Alves')
+        ..recipients.add(Address(contact.email))
+        ..subject = 'Fall Detected - ${DateTime.now().toString()}'
+        ..html = '<h1>Fall Detected!!!!</h1>\n<p>Fall detected!</p>';
 
-    telephony.sendSms(
-      to: "+5562994576141",
-      message: "Fall detected!!!",
-    );
+      send(message, smtpServer);
+
+      await telephony.sendSms(
+        to: contact.phone,
+        message: "Eu caí, haaaaaaaalp, socorno! sou não gente",
+      );
+    }
+
+    await telephony.dialPhoneNumber(contactsBox.values.first.phone);
   }
 
   @override
@@ -104,7 +110,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
               onPressed: () {
                 controller.disposeTimer();
 
-                SystemNavigator.pop();
+                // SystemNavigator.pop();
               },
               child: const Text(
                 'Dispensar',

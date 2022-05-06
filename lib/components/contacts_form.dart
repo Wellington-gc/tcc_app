@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class ContactsForm extends StatefulWidget {
   const ContactsForm({Key? key, required this.onSubmit}) : super(key: key);
@@ -17,6 +18,12 @@ class _ContactsFormState extends State<ContactsForm> {
   final phoneController = TextEditingController();
 
   final relationshipController = TextEditingController();
+
+  MaskTextInputFormatter phoneFormatter = MaskTextInputFormatter(
+    mask: '(0##) # ####-####',
+    filter: {"#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -45,8 +52,11 @@ class _ContactsFormState extends State<ContactsForm> {
               TextField(
                 controller: phoneController,
                 decoration: const InputDecoration(
+                  hintText: '(099) 9 9999-9999',
                   labelText: 'Telefone',
                 ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [phoneFormatter],
               ),
               TextField(
                 controller: relationshipController,

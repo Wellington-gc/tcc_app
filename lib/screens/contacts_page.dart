@@ -20,7 +20,7 @@ class _ContactsScreenState extends State<ContactsScreen> {
       id: const Uuid().v4(),
       name: name,
       email: email,
-      phone: phone,
+      phone: phone.replaceAll(RegExp(r"\D"), ""),
       relationship: relationship,
     );
 
