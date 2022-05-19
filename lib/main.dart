@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:tcc_app/models/contact.dart';
 import 'package:tcc_app/models/fall_code.dart';
+import 'package:tcc_app/models/setting.dart';
 import 'package:tcc_app/screens/home_page.dart';
 import 'package:timezone/data/latest.dart' as tz;
 
@@ -13,8 +14,10 @@ Future<void> main() async {
   await Hive.initFlutter();
   Hive.registerAdapter<Contact>(ContactAdapter());
   Hive.registerAdapter<FallCode>(FallCodeAdapter());
+  Hive.registerAdapter<Setting>(SettingAdapter());
   await Hive.openBox<Contact>('contacts');
   await Hive.openBox<FallCode>('fall_codes');
+  await Hive.openBox<Setting>('settings');
 
   runApp(const MyApp());
 }

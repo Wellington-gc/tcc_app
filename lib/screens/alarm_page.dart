@@ -6,6 +6,7 @@ import 'package:hive/hive.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 import 'package:tcc_app/models/contact.dart';
+import 'package:tcc_app/models/setting.dart';
 import 'package:telephony/telephony.dart';
 
 String username = 'wellingtonalves0103@gmail.com';
@@ -31,9 +32,15 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
   Future<void> onEnd() async {
     Box<Contact> contactsBox = Hive.box<Contact>('contacts');
+    Box<Setting> settingsBox = Hive.box<Setting>('settings');
 
     for (var contact in contactsBox.values) {
-      final smtpServer = gmail(username, password);
+      // ignore: deprecated_member_use
+      final smtpServer = gmail(
+        settingsBox.values.first.email,
+        settingsBox.values.first.password,
+      );
+
       final message = Message()
         ..from = Address(username, 'Wellington Alves')
         ..recipients.add(Address(contact.email))
@@ -44,7 +51,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
 
       await telephony.sendSms(
         to: contact.phone,
-        message: "Eu caí, haaaaaaaalp, socorno! sou não gente",
+        message: "Queda detectada!",
       );
     }
 

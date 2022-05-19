@@ -10,7 +10,7 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Fall Alert App'),
+        title: const Text('Detecção de queda'),
       ),
       body: Center(
         child: Column(

@@ -1,53 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-import 'package:hive/hive.dart';
-import 'package:tcc_app/models/fall_code.dart';
+import 'package:tcc_app/screens/bluetooth_settings_page.dart';
+import 'package:tcc_app/screens/email_settings_page.dart';
 
-class SettingsScreen extends StatefulWidget {
-  SettingsScreen({Key? key}) : super(key: key);
-
-  final FlutterBlue flutterBlue = FlutterBlue.instance;
-  final List<BluetoothDevice> devicesList = <BluetoothDevice>[];
-  final List<int> fallCode = <int>[];
-
-  @override
-  State<SettingsScreen> createState() => _SettingsScreenState();
-}
-
-class _SettingsScreenState extends State<SettingsScreen> {
-  Box<FallCode> fallCodesBox = Hive.box<FallCode>('fall_codes');
-  List<BluetoothService> _services = <BluetoothService>[];
-  BluetoothService? _fallService;
-  BluetoothCharacteristic? _fallCharacteristic;
-
-  _addDeviceTolist(final BluetoothDevice device) {
-    if (!widget.devicesList.contains(device)) {
-      setState(() {
-        widget.devicesList.add(device);
-      });
-    }
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    widget.flutterBlue.connectedDevices
-        .asStream()
-        .listen((List<BluetoothDevice> devices) {
-      for (BluetoothDevice device in devices) {
-        _addDeviceTolist(device);
-      }
-    });
-
-    widget.flutterBlue.scanResults.listen((List<ScanResult> results) {
-      for (ScanResult result in results) {
-        _addDeviceTolist(result.device);
-      }
-    });
-
-    widget.flutterBlue.startScan();
-  }
+class SettingsScreen extends StatelessWidget {
+  const SettingsScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,58 +13,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
       body: ListView(
         padding: const EdgeInsets.all(8),
-        children: widget.devicesList.map(
-          (device) {
-            return Card(
-              child: ListTile(
-                title: Text(device.name == ''
-                    ? '(Dispositivo desconhecido)'
-                    : device.name),
-                subtitle: Text(device.id.toString()),
-                trailing: ElevatedButton(
-                  child: const Text('Conectar'),
-                  onPressed: () async {
-                    widget.flutterBlue.stopScan();
-                    try {
-                      await device.connect();
-                    } catch (e) {
-                      rethrow;
-                    } finally {
-                      _services = await device.discoverServices();
-
-                      _fallService = _services.singleWhere((element) =>
-                          element.uuid ==
-                          Guid('7895d8d8-3220-11ec-8d3d-0242ac130003'));
-
-                      _fallCharacteristic = _fallService?.characteristics
-                          .singleWhere(
-                              (element) => element.properties.notify == true);
-
-                      _fallCharacteristic?.value.listen(
-                        (value) {
-                          fallCodesBox
-                              .add(
-                            FallCode(
-                              code: value.last,
-                            ),
-                          )
-                              .then(
-                            (value) {
-                              // showNotification();
-                            },
-                          );
-                          print(fallCodesBox.values.last.code);
-                        },
-                      );
-
-                      await _fallCharacteristic?.setNotifyValue(true);
-                    }
-                  },
+        children: [
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.bluetooth),
+              title: const Text(
+                'Bluetooth',
+                style: TextStyle(
+                  fontSize: 24,
                 ),
               ),
-            );
-          },
-        ).toList(),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) {
+                      return BluetoothSettingsScreen();
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.email),
+              title: const Text(
+                'Email',
+                style: TextStyle(
+                  fontSize: 24,
+                ),
+              ),
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (_) {
+                      return const EmailSettingsScreen();
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
