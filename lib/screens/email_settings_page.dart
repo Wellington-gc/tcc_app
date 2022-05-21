@@ -19,8 +19,10 @@ class _EmailSettingsScreenState extends State<EmailSettingsScreen> {
   void initState() {
     super.initState();
     _passwordVisible = false;
-    emailController.text = settingsBox.values.first.email;
-    passwordController.text = settingsBox.values.first.password;
+    if (settingsBox.values.isNotEmpty) {
+      emailController.text = settingsBox.values.first.email;
+      passwordController.text = settingsBox.values.first.password;
+    }
   }
 
   @override
