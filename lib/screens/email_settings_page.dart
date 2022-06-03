@@ -11,6 +11,7 @@ class EmailSettingsScreen extends StatefulWidget {
 
 class _EmailSettingsScreenState extends State<EmailSettingsScreen> {
   final emailController = TextEditingController();
+  final nameController = TextEditingController();
   final passwordController = TextEditingController();
   bool _passwordVisible = false;
   Box<Setting> settingsBox = Hive.box('settings');
@@ -20,6 +21,7 @@ class _EmailSettingsScreenState extends State<EmailSettingsScreen> {
     super.initState();
     _passwordVisible = false;
     if (settingsBox.values.isNotEmpty) {
+      nameController.text = settingsBox.values.first.name;
       emailController.text = settingsBox.values.first.email;
       passwordController.text = settingsBox.values.first.password;
     }
@@ -38,6 +40,16 @@ class _EmailSettingsScreenState extends State<EmailSettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Nome Completo',
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: TextField(
@@ -77,13 +89,24 @@ class _EmailSettingsScreenState extends State<EmailSettingsScreen> {
                   padding: const EdgeInsets.all(10.0),
                   child: ElevatedButton(
                     onPressed: () async {
-                      await settingsBox.putAt(
-                        0,
-                        Setting(
-                          email: emailController.text,
-                          password: passwordController.text,
-                        ),
-                      );
+                      if (settingsBox.isNotEmpty) {
+                        await settingsBox.putAt(
+                          0,
+                          Setting(
+                            name: nameController.text,
+                            email: emailController.text,
+                            password: passwordController.text,
+                          ),
+                        );
+                      } else {
+                        await settingsBox.add(
+                          Setting(
+                            name: nameController.text,
+                            email: emailController.text,
+                            password: passwordController.text,
+                          ),
+                        );
+                      }
                     },
                     child: const Text(
                       'Salvar',

@@ -43,6 +43,7 @@ dependencies:
   mailer: ^5.1.0
   telephony: ^0.1.4
   mask_text_input_formatter: ^2.3.0
+  intl: ^0.17.0
 
 dev_dependencies:
   flutter_test:

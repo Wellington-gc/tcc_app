@@ -3,6 +3,7 @@ import 'package:flutter_countdown_timer/countdown_timer_controller.dart';
 import 'package:flutter_countdown_timer/current_remaining_time.dart';
 import 'package:flutter_countdown_timer/flutter_countdown_timer.dart';
 import 'package:hive/hive.dart';
+import 'package:intl/intl.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server/gmail.dart';
 import 'package:tcc_app/models/contact.dart';
@@ -34,6 +35,8 @@ class _AlarmScreenState extends State<AlarmScreen> {
     Box<Contact> contactsBox = Hive.box<Contact>('contacts');
     Box<Setting> settingsBox = Hive.box<Setting>('settings');
 
+    String time = DateFormat('HH:mm, dd/MM/yyyy').format(DateTime.now());
+
     for (var contact in contactsBox.values) {
       // ignore: deprecated_member_use
       final smtpServer = gmail(
@@ -44,14 +47,17 @@ class _AlarmScreenState extends State<AlarmScreen> {
       final message = Message()
         ..from = Address(username, 'Wellington Alves')
         ..recipients.add(Address(contact.email))
-        ..subject = 'Fall Detected - ${DateTime.now().toString()}'
-        ..html = '<h1>Fall Detected!!!!</h1>\n<p>Fall detected!</p>';
+        ..subject = 'Queda detectada - ${settingsBox.values.first.name}'
+        ..html =
+            '<h1>Uma possível queda foi detectada.</h1>\n<h2>Data e hora: $time.</h2>\n<p style="font-size:1.5em">Entrar em contato o mais rápido possível com <strong>${settingsBox.values.first.name}</strong>!</p>';
 
       send(message, smtpServer);
 
       await telephony.sendSms(
         to: contact.phone,
-        message: "Queda detectada!",
+        isMultipart: true,
+        message:
+            'Queda detectada - ${settingsBox.values.first.name}\nData e hora: $time\nEntrar em contato urgentemente.',
       );
     }
 
