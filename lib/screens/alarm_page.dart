@@ -10,9 +10,6 @@ import 'package:tcc_app/models/contact.dart';
 import 'package:tcc_app/models/setting.dart';
 import 'package:telephony/telephony.dart';
 
-String username = 'wellingtonalves0103@gmail.com';
-String password = 'vexcbywurzananvf';
-
 class AlarmScreen extends StatefulWidget {
   const AlarmScreen({Key? key}) : super(key: key);
 
@@ -45,7 +42,7 @@ class _AlarmScreenState extends State<AlarmScreen> {
       );
 
       final message = Message()
-        ..from = Address(username, 'Wellington Alves')
+        ..from = Address(settingsBox.values.first.email, 'Wellington Alves')
         ..recipients.add(Address(contact.email))
         ..subject = 'Queda detectada - ${settingsBox.values.first.name}'
         ..html =

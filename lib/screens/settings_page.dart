@@ -38,7 +38,7 @@ class SettingsScreen extends StatelessWidget {
             child: ListTile(
               leading: const Icon(Icons.email),
               title: const Text(
-                'Email',
+                'E-mail',
                 style: TextStyle(
                   fontSize: 24,
                 ),
